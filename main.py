@@ -1,7 +1,6 @@
 import pygame
 import sys
-
-# Initialize Pygame
+ 
 pygame.init()
 
 screen_width = 800
@@ -33,12 +32,10 @@ locations = {
     21: (682, 619),
     22: (682, 722)
 } 
-
-# Set up the display
+ 
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Food Detective")
-
-# Load the background image
+ 
 background_image = pygame.image.load("Background.png")
 
 background_image = pygame.transform.scale(background_image, (screen_width, screen_height))
@@ -49,7 +46,7 @@ def draw_circle(square_number):
 
 def main():
     global current_square
-    # Main game loop
+ 
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -58,21 +55,15 @@ def main():
     
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
-                    # Move left
                     current_square = max(1, current_square - 1)  # Ensure current_square doesn't go below 1
                 elif event.key == pygame.K_RIGHT:
-                    # Move right
                     current_square = min(len(locations), current_square + 1)  # Ensure current_square doesn't exceed the number of squares
-
-
-        # Draw the background image
+ 
         screen.blit(background_image, [0, 0])
 
         draw_circle(current_square)
 
-        # Update the display
         pygame.display.flip()
-
-# Run the game
+ 
 if __name__ == "__main__":
     main()
