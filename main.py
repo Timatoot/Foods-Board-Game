@@ -32,34 +32,11 @@ locations = {
     20: (566, 619),
     21: (682, 619),
     22: (682, 722)
-}
-
-# square 1: 113, 58
-# square 2: 113, 161
-# square 3: 227, 161
-# square 4: 340, 161
-# square 5: 453, 161
-# square 6: 566, 161
-# square 7: 682, 161
-# square 8: 682, 266
-# square 9: 682, 383
-# square 10: 565, 383
-# square 11: 452, 383
-# square 12: 339, 383
-# square 13: 226, 383
-# square 14: 113, 383
-# square 15: 113, 499
-# square 16: 113, 619
-# square 17: 226, 619
-# square 18: 339, 619
-# square 19: 454, 619
-# square 20: 566, 619
-# square 21: 682, 619
-# square 22: 682, 722
+} 
 
 # Set up the display
 screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption("My Pygame Project")
+pygame.display.set_caption("Food Detective")
 
 # Load the background image
 background_image = pygame.image.load("Background.png")
