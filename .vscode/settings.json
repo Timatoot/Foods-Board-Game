@@ -1,0 +1,6 @@
+{
+  "python.pythonPath": "venv/bin/python",
+  "terminal.integrated.shellArgs.linux": ["-c", "source venv/bin/activate"],
+  "terminal.integrated.shellArgs.osx": ["-c", "source venv/bin/activate"],
+  "terminal.integrated.shellArgs.windows": ["-c", ".\\venv\\Scripts\\activate"]
+}
