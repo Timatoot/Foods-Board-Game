@@ -76,17 +76,23 @@ def roll_button():
 
 def main():
     global current_square
+    target_forward_square = 1
+    target_reverse_square = 1
  
     while True:
+        if rolled:
+            target_forward_square = min(len(locations), current_square + current_roll)
+            target_reverse_square = max(1, current_square - current_roll)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
     
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
+                if event.key == pygame.K_LEFT and current_square != target_reverse_square:
                     current_square = max(1, current_square - 1)  # Ensure current_square doesn't go below 1
-                elif event.key == pygame.K_RIGHT:
+                elif event.key == pygame.K_RIGHT and current_square != target_forward_square:
                     current_square = min(len(locations), current_square + 1)  # Ensure current_square doesn't exceed the number of squares
  
         screen.blit(background_image, [0, 0])
