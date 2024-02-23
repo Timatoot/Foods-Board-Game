@@ -12,6 +12,8 @@ current_roll = 1
 
 rolled = False
 
+at_target_square = True
+
 locations = {
     1: (113, 58),
     2: (113, 161),
@@ -54,6 +56,7 @@ def roll_dice():
 def roll_button():
     global current_roll
     global rolled
+    global at_target_square
 
     button_x = 700
     button_y = 20
@@ -68,14 +71,18 @@ def roll_button():
     click = pygame.mouse.get_pressed()
 
     if button_x + button_width > mouse[0] > button_x and button_y + button_height > mouse[1] > button_y:
-        if click[0] == 1 and not rolled:
+        if click[0] == 1 and not rolled and at_target_square:
             current_roll = roll_dice()
             rolled = True
-        elif click[0] == 0 and rolled:
+            at_target_square = False
+            print(current_roll)
+        elif click[0] == 0 and rolled and not at_target_square:
             rolled = False
 
 def main():
     global current_square
+    global at_target_square
+
     target_forward_square = 1
     target_reverse_square = 1
  
@@ -90,10 +97,12 @@ def main():
                 sys.exit()
     
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT and current_square != target_reverse_square:
+                if event.key == pygame.K_LEFT and current_square != target_reverse_square and not at_target_square:
                     current_square = max(1, current_square - 1)  # Ensure current_square doesn't go below 1
-                elif event.key == pygame.K_RIGHT and current_square != target_forward_square:
+                elif event.key == pygame.K_RIGHT and current_square != target_forward_square and not at_target_square:
                     current_square = min(len(locations), current_square + 1)  # Ensure current_square doesn't exceed the number of squares
+                elif target_forward_square == current_square or target_reverse_square == current_square:
+                    at_target_square = True
  
         screen.blit(background_image, [0, 0])
 
