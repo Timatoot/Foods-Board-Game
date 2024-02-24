@@ -1,6 +1,7 @@
 import pygame
 import sys
 import random
+import textwrap
  
 pygame.init()
 
@@ -10,11 +11,27 @@ screen_height = 800
 current_square = 1
 current_roll = 1
 
+got_clue = False
+
 rolled = False
 
 at_target_square = False
 
 can_move = False
+
+categories = [
+    [2, 6, 10, 14, 18],
+    [3, 7, 11, 15, 19],
+    [4, 8, 12, 16, 20],
+    [5, 9, 13, 17, 21]
+]
+
+used_clues = [
+    [],
+    [],
+    [],
+    []
+]
 
 locations = {
     1: (113, 58),
@@ -48,6 +65,26 @@ background_image = pygame.image.load("assets/Background.png")
 
 background_image = pygame.transform.scale(background_image, (screen_width, screen_height))
 
+def find_category_index(my_list, target):
+    for i, row in enumerate(my_list):
+        if target in row:
+            return i
+        
+def add_used_clue(category, clue):
+    used_clues[category].append(clue)
+
+def check_clue_used(category, clue):
+    return clue in used_clues[category]
+
+def get_random_clue(category):
+    random_clue = random.randint(1, 15)
+
+    if check_clue_used(category, random_clue):
+        return get_random_clue(category)
+    else:
+        add_used_clue(category, random_clue)
+        return random_clue
+
 def draw_circle(square_number):
     x, y = locations[square_number]
     pygame.draw.circle(screen, (0, 0, 255), (x, y), 10)
@@ -57,31 +94,45 @@ def roll_dice():
 
 def pop_up_message(message):
     font = pygame.font.Font(None, 36)
-    lines = message.split('\n')  # Split the message into lines
+    
+    # Adjust the wrap width based on your font size and screen width
+    # This is a rough estimation; you might need to fine-tune it
+    char_width = font.size("a")[0]  # Estimate the width of a single character
+    max_chars_per_line = screen_width // char_width
+    
+    # First, split the original message by explicit line breaks
+    original_lines = message.split('\n')
+    
+    # Then wrap each line if it's too long to fit the screen
+    wrapped_lines = []
+    for line in original_lines:
+        wrapped_lines.extend(textwrap.wrap(line, max_chars_per_line))
     
     # Calculate the starting y position so the block of text is centered
-    block_height = len(lines) * font.get_height()
+    block_height = len(wrapped_lines) * font.get_height()
     y_start = screen_height // 2 - block_height // 2
     
-    screen.fill((0, 0, 0))  # Fill the screen with black before displaying the message
-
-    for i, line in enumerate(lines):
-        text = font.render(line, True, (255, 255, 255))
-        text_rect = text.get_rect(center=(screen_width // 2, y_start + i * font.get_height()))
-        screen.blit(text, text_rect)
+    screen.fill((0, 0, 0))  # Clear the screen with black
+    
+    # Render each line, adjusting the y position for each
+    for i, line in enumerate(wrapped_lines):
+        text_surface = font.render(line, True, (255, 255, 255))
+        text_rect = text_surface.get_rect(center=(screen_width // 2, y_start + i * font.get_height()))
+        screen.blit(text_surface, text_rect)
     
     pygame.display.flip()
-    # Event loop to wait for ESC key press or mouse button click
+    
+    # Wait for a user action to close the message
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:  # Close popup when ESC is pressed
+                if event.key == pygame.K_ESCAPE:  # Press ESC to close
                     return
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                return  # Close popup on mouse click
+                return  # Click to close
             
 def get_clue_from_file(file_name):
     with open(file_name, "r") as file:
@@ -98,11 +149,25 @@ def write_clue_to_file(file_name, clue):
 def add_new_clue(clue):
     write_clue_to_file("known clues.txt", clue)
 
+def check_current_category(categoryNumber):
+    match categoryNumber:
+        case 0:
+            return "scene"
+        case 1:
+            return "witness"
+        case 2:
+            return "generic"
+        case 3:
+            return "weapon"
+        case _:
+            return
+
 def roll_button():
     global current_roll
     global rolled
     global at_target_square
     global can_move
+    global got_clue
 
     button_x = 700
     button_y = 20
@@ -122,6 +187,7 @@ def roll_button():
             current_roll = roll_dice()
             rolled = True
             at_target_square = False
+            got_clue = False
             print(current_roll)
         elif click[0] == 0 and rolled and not at_target_square:
             rolled = False
@@ -149,17 +215,17 @@ def see_clues():
 def main():
     global current_square
     global at_target_square
+    global got_clue
 
     target_forward_square = 1
     target_reverse_square = 1
-    clue = 1
 
     clear_text_file("known clues.txt")
  
     while True:
         if rolled:
             target_forward_square = min(len(locations), current_square + current_roll)
-            target_reverse_square = max(1, current_square - current_roll)
+            target_reverse_square = max(2, current_square - current_roll)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -168,15 +234,19 @@ def main():
     
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT and current_square != target_reverse_square and not at_target_square:
-                    current_square = max(1, current_square - 1)  # Ensure current_square doesn't go below 1
+                    current_square = max(2, current_square - 1)  # Ensure current_square doesn't go below 2
                 elif event.key == pygame.K_RIGHT and current_square != target_forward_square and not at_target_square:
                     current_square = min(len(locations), current_square + 1)  # Ensure current_square doesn't exceed the number of squares
                 elif target_forward_square == current_square or target_reverse_square == current_square:
                     at_target_square = True
-                    pop_up_message(get_clue_from_file("assets/clues/generic/test" + str(clue) + ".txt"))
-                    add_new_clue(get_clue_from_file("assets/clues/generic/test" + str(clue) + ".txt"))
-                    clue += 1
- 
+                    if (target_forward_square != 1 or target_reverse_square != 1) and not got_clue:
+                        current_category = check_current_category(find_category_index(categories, current_square))
+                        current_clue = get_random_clue(find_category_index(categories, current_square))
+                        pop_up_message(get_clue_from_file("assets/clues/"+ current_category +"/Clue" + str(current_clue) + ".txt"))
+                        add_new_clue(get_clue_from_file("assets/clues/"+ current_category +"/Clue" + str(current_clue) + ".txt"))
+                        got_clue = True
+    
+
         screen.blit(background_image, [0, 0])
 
         draw_circle(current_square)
