@@ -36,6 +36,13 @@ used_clues = [
     []
 ]
 
+culpritChoices = ["Alex", "James", "Mylie", "Jennifer"]
+foodBorneIllnessChoices = ["Salmonella", "E. Coli", "Listeria", "Norovirus"]
+causeOfIllnessChoices = ["Mayonnaise", "Undercooked Chicken", "Jam", "Pizza"]
+howItWasCausedChoices = ["Contamination", "Improper Storage", "Cross Contamination", "Improper Cooking"]
+
+solution = ["Alex", "Salmonella", "Mayonnaise", "Contamination"]  # Culprit, Food Borne Illness, Cause of Illness, How it was caused
+
 locations = {
     1: (113, 58),
     2: (113, 161),
@@ -57,8 +64,7 @@ locations = {
     18: (339, 619),
     19: (454, 619),
     20: (566, 619),
-    21: (682, 619),
-    22: (682, 722)
+    21: (682, 619)
 }
 
 screen = pygame.display.set_mode((screen_width, screen_height))
@@ -228,39 +234,87 @@ def begin_game(name):
                    "\n\nPress the left and right arrow keys to move." + 
                    "\n\nPress the roll button to roll the dice." + 
                    "\n\nPress the clue button to see your collected clues." + 
-                   "\n\nPress any key to begin.")
+                   "\n\nClick anywhere to continue.")
     
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            elif event.type == pygame.KEYDOWN:
-                return
-
-def intro_screen():
     pop_up_message(get_text_from_file("intro.txt"))
-    
+
+            
+def end_game_message():
+    pop_up_message("Your time is up, detective. Now it's time to solve the case. Check your clues and see if you cracked the case. Click anywhere to continue")
+
+    pop_up_message("Now it's time to figure out the details of the case. You must select the culprit, the Food Borne Illness and what caused the illness. Good Luck, and don't guess wrong, or the case may remain unsolved... \n\nClick to continue to the guessing stage.")
+
+def guessing_stage(buttonsArray):
+    global current_guessing_stage
+
+    button_width = 150
+    button_height = 50
+    button_x = 325
+    button_y = 350
+    button_spacing = 100
+
+    buttons = buttonsArray
+
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            elif event.type == pygame.KEYDOWN:
-                return
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                for i, button in enumerate(buttons):
+                    button_rect = pygame.Rect(button_x, button_y + i * button_spacing, button_width, button_height)
+                    if button_rect.collidepoint(mouse_pos):
+                        answer.append(buttons[i])
+                        current_guessing_stage += 1
+                        match current_guessing_stage:
+                            case 0:
+                                buttons = culpritChoices
+                            case 1:
+                                buttons = foodBorneIllnessChoices
+                            case 2:
+                                buttons = causeOfIllnessChoices
+                            case 3:
+                                buttons = howItWasCausedChoices
+                            case 4:
+                                if answer == solution:
+                                    pop_up_message("Congratulations! You solved the case!")
+                                else:
+                                    pop_up_message("You guessed wrong! The case remains unsolved.")
+                                pygame.quit()
+                                sys.exit()
+                            case _:
+                                pass
+                    
+        screen.fill((0, 0, 0))
+
+        for i, button in enumerate(buttons):
+            button_rect = pygame.Rect(button_x, button_y + i * button_spacing, button_width, button_height)
+            pygame.draw.rect(screen, (255, 0, 0), button_rect)
+            font = pygame.font.Font(None, 36)
+            text = font.render(button, True, (255, 255, 255))
+            text_rect = text.get_rect(center=button_rect.center)
+            screen.blit(text, text_rect)
+
+        pygame.display.flip()
 
 def main():
     global current_square
     global at_target_square
     global got_clue
+    global answer
+    global current_guessing_stage
 
     target_forward_square = 1
     target_reverse_square = 1
 
+    current_guessing_stage = 0
+
+    answer = []
+
     clear_text_file("known clues.txt")
 
     begin_game(game_name)
-    intro_screen()
 
     display_remaining_rolls() 
 
@@ -297,6 +351,9 @@ def main():
         display_remaining_rolls()
 
         pygame.display.flip()
+
+    end_game_message()
+    guessing_stage(culpritChoices)
  
 if __name__ == "__main__":
     main()
