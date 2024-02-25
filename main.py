@@ -8,8 +8,11 @@ pygame.init()
 screen_width = 800
 screen_height = 800
 
+game_name = "Food Detective"
+
 current_square = 1
 current_roll = 1
+rolls_remaining = 10
 
 got_clue = False
 
@@ -134,7 +137,7 @@ def pop_up_message(message):
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 return  # Click to close
             
-def get_clue_from_file(file_name):
+def get_text_from_file(file_name):
     with open(file_name, "r") as file:
         return file.read()
 
@@ -168,6 +171,7 @@ def roll_button():
     global at_target_square
     global can_move
     global got_clue
+    global rolls_remaining
 
     button_x = 700
     button_y = 20
@@ -188,9 +192,15 @@ def roll_button():
             rolled = True
             at_target_square = False
             got_clue = False
+            rolls_remaining -= 1
             print(current_roll)
         elif click[0] == 0 and rolled and not at_target_square:
             rolled = False
+
+def display_remaining_rolls():
+    font = pygame.font.Font(None, 36)
+    text = font.render("Rolls remaining: " + str(rolls_remaining), True, (255, 255, 255))
+    screen.blit(text, (450, 20))
 
 def see_clues():
     button_width = 80
@@ -212,6 +222,33 @@ def see_clues():
                 clues = file.read()
             pop_up_message(clues)
 
+def begin_game(name):
+    pop_up_message("Welcome to " + name + 
+                   "\n\nYou have 10 rolls to move around the board and collect clues." + 
+                   "\n\nPress the left and right arrow keys to move." + 
+                   "\n\nPress the roll button to roll the dice." + 
+                   "\n\nPress the clue button to see your collected clues." + 
+                   "\n\nPress any key to begin.")
+    
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                return
+
+def intro_screen():
+    pop_up_message(get_text_from_file("intro.txt"))
+    
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                return
+
 def main():
     global current_square
     global at_target_square
@@ -221,8 +258,13 @@ def main():
     target_reverse_square = 1
 
     clear_text_file("known clues.txt")
- 
-    while True:
+
+    begin_game(game_name)
+    intro_screen()
+
+    display_remaining_rolls() 
+
+    while rolls_remaining > 0:
         if rolled:
             target_forward_square = min(len(locations), current_square + current_roll)
             target_reverse_square = max(2, current_square - current_roll)
@@ -242,8 +284,8 @@ def main():
                     if (target_forward_square != 1 or target_reverse_square != 1) and not got_clue:
                         current_category = check_current_category(find_category_index(categories, current_square))
                         current_clue = get_random_clue(find_category_index(categories, current_square))
-                        pop_up_message(get_clue_from_file("assets/clues/"+ current_category +"/Clue" + str(current_clue) + ".txt"))
-                        add_new_clue(get_clue_from_file("assets/clues/"+ current_category +"/Clue" + str(current_clue) + ".txt"))
+                        pop_up_message(get_text_from_file("assets/clues/"+ current_category +"/Clue" + str(current_clue) + ".txt"))
+                        add_new_clue(get_text_from_file("assets/clues/"+ current_category +"/Clue" + str(current_clue) + ".txt"))
                         got_clue = True
     
 
@@ -252,6 +294,7 @@ def main():
         draw_circle(current_square)
         roll_button()
         see_clues()
+        display_remaining_rolls()
 
         pygame.display.flip()
  
