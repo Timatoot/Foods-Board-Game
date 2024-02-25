@@ -298,6 +298,7 @@ def guessing_stage(buttonsArray):
 
         pygame.display.flip()
 
+#TODO: fix answer choices and fix bug with dice roll
 def main():
     global current_square
     global at_target_square
