@@ -8,7 +8,7 @@ pygame.init()
 screen_width = 800
 screen_height = 800
 
-game_name = "Food Detective"
+game_name = "Culinary Conundrum"
 
 current_square = 1
 current_roll = 1
