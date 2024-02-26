@@ -200,7 +200,7 @@ def roll_button():
             got_clue = False
             rolls_remaining -= 1
             print(current_roll)
-        elif click[0] == 0 and rolled and not at_target_square:
+        elif rolled and not at_target_square:
             rolled = False
 
 def display_remaining_rolls():
