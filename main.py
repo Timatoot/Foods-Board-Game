@@ -23,10 +23,10 @@ at_target_square = False
 can_move = False
 
 categories = [
-    [2, 6, 10, 14, 18],
-    [3, 7, 11, 15, 19],
-    [4, 8, 12, 16, 20],
-    [5, 9, 13, 17, 21]
+    [2, 6, 13, 15, 20], #scene
+    [3, 9, 11, 14, 19], #witness
+    [4, 8, 12, 17, 21], #generic
+    [5, 7, 10, 16, 18]  #weapon
 ]
 
 used_clues = [
@@ -41,7 +41,8 @@ foodBorneIllnessChoices = ["Botulism", "E. Coli", "Salmonella", "Norovirus"]
 causeOfIllnessChoices = ["Eggs", "Chicken", "Pizza", "Mayonnaise"]
 howItWasCausedChoices = ["Contamination", "Improper Storage", "Cross Contamination", "Improper Cooking"]
 
-solution = ["Alex", "Salmonella", "Mayonnaise", "Contamination"]  # Culprit, Food Borne Illness, Cause of Illness, How it was caused
+        # Culprit, Food Borne Illness, Cause of Illness, How it was caused
+solution = ["Alex", "Salmonella", "Mayonnaise", "Contamination"]  
 
 locations = {
     1: (113, 58),
@@ -68,7 +69,7 @@ locations = {
 }
 
 screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption("Food Detective")
+pygame.display.set_caption(game_name)
 
 background_image = pygame.image.load("assets/Background.png")
 
@@ -94,9 +95,14 @@ def get_random_clue(category):
         add_used_clue(category, random_clue)
         return random_clue
 
-def draw_circle(square_number):
+def draw_player(square_number):
     x, y = locations[square_number]
-    pygame.draw.circle(screen, (0, 0, 255), (x, y), 10)
+    player_width = 60
+    player_height = 60
+
+    player_image = pygame.image.load("assets/player.png")
+    player_image = pygame.transform.scale(player_image, (player_width, player_height))
+    screen.blit(player_image, (x - (player_width / 2), y - (player_height / 2)))
 
 def roll_dice():
     return random.randint(1, 6)
@@ -345,7 +351,7 @@ def main():
 
         screen.blit(background_image, [0, 0])
 
-        draw_circle(current_square)
+        draw_player(current_square)
         roll_button()
         see_clues()
         display_remaining_rolls()
