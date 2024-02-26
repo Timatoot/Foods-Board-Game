@@ -36,9 +36,9 @@ used_clues = [
     []
 ]
 
-culpritChoices = ["Alex", "James", "Mylie", "Jennifer"]
-foodBorneIllnessChoices = ["Salmonella", "E. Coli", "Listeria", "Norovirus"]
-causeOfIllnessChoices = ["Mayonnaise", "Undercooked Chicken", "Jam", "Pizza"]
+culpritChoices = ["Alex", "Morgan", "Jordan", "Charlie"]
+foodBorneIllnessChoices = ["Botulism", "E. Coli", "Salmonella", "Norovirus"]
+causeOfIllnessChoices = ["Eggs", "Chicken", "Pizza", "Mayonnaise"]
 howItWasCausedChoices = ["Contamination", "Improper Storage", "Cross Contamination", "Improper Cooking"]
 
 solution = ["Alex", "Salmonella", "Mayonnaise", "Contamination"]  # Culprit, Food Borne Illness, Cause of Illness, How it was caused
@@ -298,7 +298,6 @@ def guessing_stage(buttonsArray):
 
         pygame.display.flip()
 
-#TODO: fix answer choices and fix bug with dice roll
 def main():
     global current_square
     global at_target_square
