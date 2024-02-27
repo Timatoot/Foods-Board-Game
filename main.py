@@ -1,3 +1,4 @@
+import os
 import pygame
 import sys
 import random
@@ -71,7 +72,12 @@ locations = {
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption(game_name)
 
-background_image = pygame.image.load("assets/Background.png")
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
+
+background_image = pygame.image.load((resource_path(os.path.join('assets', 'Background.png'))))
 
 background_image = pygame.transform.scale(background_image, (screen_width, screen_height))
 
@@ -100,7 +106,7 @@ def draw_player(square_number):
     player_width = 60
     player_height = 60
 
-    player_image = pygame.image.load("assets/player.png")
+    player_image = pygame.image.load(resource_path(os.path.join('assets', 'player.png')))
     player_image = pygame.transform.scale(player_image, (player_width, player_height))
     screen.blit(player_image, (x - (player_width / 2), y - (player_height / 2)))
 
@@ -142,7 +148,7 @@ def pop_up_message(message):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                exit()
+                sys.exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:  # Press ESC to close
                     return
@@ -162,7 +168,7 @@ def write_clue_to_file(file_name, clue):
         file.write("\n\n" + clue)
 
 def add_new_clue(clue):
-    write_clue_to_file("known clues.txt", clue)
+    write_clue_to_file(resource_path(os.path.join('assets', 'Extras', 'known clues.txt')), clue)
 
 def check_current_category(categoryNumber):
     match categoryNumber:
@@ -190,7 +196,7 @@ def roll_button():
     button_width = 80
     button_height = 80
 
-    roll = pygame.image.load("assets/Roll" + str(current_roll) + ".png")
+    roll = pygame.image.load(resource_path(os.path.join('assets', 'Roll' + str(current_roll) + '.png')))
     roll = pygame.transform.scale(roll, (button_width, button_height))
     screen.blit(roll, (button_x, button_y))
 
@@ -220,7 +226,7 @@ def see_clues():
     button_x = 20
     button_y = screen_height - button_height - 20
 
-    button_image = pygame.image.load("assets/clue button.png")
+    button_image = pygame.image.load(resource_path(os.path.join('assets', 'clue button.png')))
     button_image = pygame.transform.scale(button_image, (button_width, button_height))
     screen.blit(button_image, (button_x, button_y))
 
@@ -229,8 +235,7 @@ def see_clues():
 
     if button_x + button_width > mouse[0] > button_x and button_y + button_height > mouse[1] > button_y:
         if click[0] == 1:
-            clues_file = "known clues.txt"
-            with open(clues_file, "r") as file:
+            with open(resource_path(os.path.join('assets', 'Extras', 'known clues.txt')), "r") as file:
                 clues = file.read()
             pop_up_message(clues)
 
@@ -242,7 +247,7 @@ def begin_game(name):
                    "\n\nPress the clue button to see your collected clues." + 
                    "\n\nClick anywhere to continue.")
     
-    pop_up_message(get_text_from_file("intro.txt"))
+    pop_up_message(get_text_from_file(resource_path(os.path.join('assets', 'Extras', 'intro.txt'))))
 
             
 def end_game_message():
@@ -318,7 +323,7 @@ def main():
 
     answer = []
 
-    clear_text_file("known clues.txt")
+    clear_text_file(resource_path(os.path.join('assets', 'Extras', 'known clues.txt')))
 
     begin_game(game_name)
 
@@ -344,8 +349,12 @@ def main():
                     if (target_forward_square != 1 or target_reverse_square != 1) and not got_clue:
                         current_category = check_current_category(find_category_index(categories, current_square))
                         current_clue = get_random_clue(find_category_index(categories, current_square))
-                        pop_up_message(get_text_from_file("assets/clues/"+ current_category +"/Clue" + str(current_clue) + ".txt"))
-                        add_new_clue(get_text_from_file("assets/clues/"+ current_category +"/Clue" + str(current_clue) + ".txt"))
+
+                        pop_up_message(get_text_from_file(resource_path(os.path.join('assets', 'clues', current_category, 'Clue' + str(current_clue) + ".txt"))))
+                        add_new_clue(get_text_from_file(resource_path(os.path.join('assets', 'clues', current_category, 'Clue' + str(current_clue) + ".txt"))))
+
+                        #pop_up_message(get_text_from_file("assets/clues/"+ current_category +"/Clue" + str(current_clue) + ".txt"))
+                        #add_new_clue(get_text_from_file("assets/clues/"+ current_category +"/Clue" + str(current_clue) + ".txt"))
                         got_clue = True
     
 
